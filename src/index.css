@@ -1,68 +1,163 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-bg-dark: #121212;
+  --color-bg-surface: #1e1e1e;
+  --color-bg-message: #2d2d2d;
+  --color-text-main: #f3f4f6;
+  --color-text-muted: #9ca3af;
+  --color-border: #374151;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+@layer base {
+  body {
+    @apply bg-bg-dark text-text-main antialiased m-0 p-0;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    color-scheme: dark;
   }
 }
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* ─── Crisis Background Animations ─────────────────────────────────── */
+@keyframes crisis-bg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes crisis-banner-slide-down {
+  from { 
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes crisis-btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes message-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.crisis-bg-layer {
+  animation: crisis-bg-fade-in 0.8s ease-in-out forwards;
+}
+
+.crisis-banner {
+  animation: crisis-banner-slide-down 0.35s ease-out forwards;
+}
+
+.crisis-btn-active {
+  animation: crisis-btn-pop 0.35s ease-out;
+}
+
+.message-animate {
+  animation: message-fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Chat Bubble Shapes */
+.bubble-bot {
+  border-bottom-left-radius: 4px !important;
+}
+
+.bubble-user {
+  border-bottom-right-radius: 4px !important;
+}
+
+/* ─── High Contrast Theme (No Power) ───────────────────────────────── */
+.high-contrast-theme {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+.high-contrast-theme header {
+  background: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+.high-contrast-theme .text-text-main,
+.high-contrast-theme .text-text-muted,
+.high-contrast-theme h1,
+.high-contrast-theme p {
+  color: #ffff00 !important;
+}
+
+.high-contrast-theme .bg-bg-message {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast-theme .bg-primary {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+.high-contrast-theme .crisis-banner {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border-bottom: 2px solid #000000 !important;
+}
+
+.high-contrast-theme .crisis-banner button {
+  color: #000000 !important;
+  font-weight: bold;
+}
+
+.high-contrast-theme footer {
+  background: #000000 !important;
+  border-top: 2px solid #ffff00 !important;
+}
+
+.high-contrast-theme form {
+  background: #000000 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast-theme textarea {
+  color: #ffff00 !important;
+}
+
+.high-contrast-theme textarea::placeholder {
+  color: rgba(255, 255, 0, 0.5) !important;
+}
+
+.high-contrast-theme .crisis-bg-layer {
+  display: none !important;
+}
+
+/* Disable all animations in High Contrast / No Power mode to save battery */
+.high-contrast-theme *,
+.high-contrast-theme *::before,
+.high-contrast-theme *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
