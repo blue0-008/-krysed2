@@ -153,6 +153,29 @@
   display: none !important;
 }
 
+/* Glass-morphism effect for premium feel */
+.glass-effect {
+  @apply backdrop-blur-md border border-white/10 shadow-xl;
+  background-color: rgba(45, 45, 45, 0.7) !important;
+}
+
+/* Specific typography for Moroccan Darija (Arabic script) */
+.font-darija {
+  font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+.status-badge-offline {
+  @apply flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────── */
+
 /* Disable all animations in High Contrast / No Power mode to save battery */
 .high-contrast-theme *,
 .high-contrast-theme *::before,

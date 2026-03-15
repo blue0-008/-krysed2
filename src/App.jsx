@@ -7,20 +7,50 @@ import { fetchCrisisBackground } from './lib/unsplash';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
-// ─── Mock Mode ───────────────────────────────────────────────────────────────
-const MOCK_RESPONSE = `سلام أ خويا/أ ختي! ما تخافش، أنا معاك.
-📖 LESSON: This is a demo lesson about fractions. Une fraction représente une partie d'un tout — like cutting harsha bread into equal pieces.
-🖼️ IMAGINE THIS: Picture the floods outside your window. Now imagine your knowledge is the dry room inside — safe, warm, growing. [VISUAL: morocco atlas mountains]
-💡 KEY INSIGHT: Learning never stops, even when the world does.
-🎯 QUICK CHECK: If you cut something into 4 equal parts and take 1, what fraction do you have?`;
+// ─── Smart Mock Mode Content ────────────────────────────────────────────────
+const MOCK_GREETING = `سلام أ خويا/أ ختي! ما تخافش، أنا ديما هنا معاك باش عاونك فدروسك.
+واخا كاين هاد الظرف الصعب، المعرفة هي السلاح ديالك. قولي، شنو بغيتي نراجعو دابا؟ واش **الرياضيات (Maths)** ولا **العلوم (Sciences)**؟ أنا موجود باش نبسط ليك الأمور.`;
+
+const MOCK_FRACTIONS = `سلام أ خويا! مزيان نسول على الرياضيات، هي اللي كتنظم لينا العقل.
+📖 **LESSON: Les Fractions**
+Une fraction représente une partie d'un tout. Imagine qu'on partage une **Harcha** en parts égales :
+*   Le **numérateur** (le chiffre du haut) : c'est le nombre de parts que tu manges.
+*   Le **dénominateur** (le chiffre du bas) : c'est le nombre total de parts égales.
+
+🖼️ **ANALOGY:** Si tu coupes un gâteau en 4 parts et que tu en prends 1, tu as **1/4** du gâteau !
+💡 **KEY INSIGHT:** Les fractions nous aident à partager équitablement, même quand on a peu.
+🎯 **QUICK CHECK:** Si tu as 3/3 d'une pizza, combien te reste-t-il de la pizza entière ?`;
+
+const MOCK_WATER_CYCLE = `سلام أ ختي! تبارك الله عليك مهتمة بالطبيعة، وخا هي صعيبة دابا، ولكن خاصنا نفهموها.
+📖 **LESSON: Le Cycle de l'Eau**
+L'eau sur Terre est dans un mouvement perpétuel. Voici les étapes clés :
+1.  **Évaporation:** Le soleil chauffe l'eau et elle monte comme de la vapeur.
+2.  **Condensation:** Elle forme des nuages dans le ciel froid.
+3.  **Précipitation:** Elle retombe sous forme de pluie ou de neige.
+
+🖼️ **ANALOGY:** C'est comme la vapeur qui s'échappe d'une marmite et qui redevient des gouttes d'eau sur le couvercle.
+💡 **KEY INSIGHT:** Rien ne se perd, tout se transforme. La nature se régénère toujours.
+🎯 **QUICK CHECK:** Comment appelle-t-on l'étape où la vapeur devient des nuages ?`;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const INITIAL_MESSAGE = {
   id: '1',
-  text: "سلام! I'm Krysed. I know things are difficult with the crisis right now, but we're going to keep your education moving. What are we learning today?",
+  text: 'أهلاً! أنا كريزيد (Krysed)، خوك الكبير هنا باش نعاونك تفهم دروسك واخا فهاد الظروف الصعبة. شنو بغيتي نراجعو اليوم؟',
   sender: 'bot',
   timestamp: new Date(),
 };
+
+const VisualAids = ({ query }) => (
+  <div className='my-4 rounded-xl overflow-hidden border-2 border-slate-700 max-w-sm mx-auto shadow-xl'>
+    <img
+      src={`https://picsum.photos/400/225?random=${Math.floor(Math.random() * 100)}`}
+      alt={query}
+      className='w-full h-48 object-cover'
+      onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800'}
+    />
+    <p className='text-[10px] text-slate-500 p-2 italic bg-slate-900/50'>📸 Visualizing: {query}</p>
+  </div>
+);
 
 // ─── Crisis configuration ────────────────────────────────────────────────────
 const CRISIS_TYPES = [
@@ -164,38 +194,27 @@ function App() {
 
   // ─── Render bot message: parse [VISUAL: keyword] tags ───────────────────────
   const renderBotText = useCallback((text) => {
-    // Split on [VISUAL: some keyword] — case-insensitive
-    const parts = text.split(/(\[VISUAL:[^\]]+\])/i);
-    return parts.map((part, i) => {
-      const match = part.match(/^\[VISUAL:\s*(.+?)\s*\]$/i);
-      if (match) {
-        const keyword = encodeURIComponent(match[1]);
-        return (
-          <img
-            key={i}
-            src={`https://source.unsplash.com/400x200/?${keyword}`}
-            alt={match[1]}
-            loading="lazy"
-            className="mt-2 mb-1 w-full max-w-sm rounded-xl object-cover shadow-md border border-white/10"
-          />
-        );
-      }
-      if (!part) return null;
-      return (
-        <ReactMarkdown
-          key={i}
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            span: ({ node, ...props }) => (
-              <span className="border-b border-dashed border-primary/50 cursor-help" {...props} />
-            ),
-            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-          }}
-        >
-          {part}
-        </ReactMarkdown>
-      );
-    });
+    return (
+      <ReactMarkdown
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          span: ({ node, ...props }) => (
+            <span className="border-b border-dashed border-primary/50 cursor-help" {...props} />
+          ),
+          p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+          img: ({ node, ...props }) => (
+            <img 
+              {...props} 
+              src={`https://picsum.photos/400/200?random=${Math.floor(Math.random() * 100)}`}
+              className="rounded-xl border border-slate-700 my-4 shadow-lg w-full h-auto min-h-[200px] object-cover" 
+              onError={(e) => { e.target.src = 'https://picsum.photos/400/200'; }}
+            />
+          )
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
   }, []);
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -203,235 +222,246 @@ function App() {
     if (!isTtsEnabled || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
-    // Strip [VISUAL: ...] tags before speaking
-    let cleanText = text.replace(/\[VISUAL:[^\]]+\]/gi, '').replace(/<[^>]*>?/gm, '');
-    const boilerplateRegex =
-      /(سلام أ خويا \/ أ ختي[،,] ما تخافش|سلام أ ختي[،,] ما تخافيش|سلام أ خويا[،,] ما تخافش|سلام أ خويا|سلام أ ختي|ما تخافش|ما تخافيش|نزيدو نشوفو هادشي|هنا معاك|سلام!?)/gi;
-    cleanText = cleanText.replace(boilerplateRegex, '').trim();
-    cleanText = cleanText.replace(/^[،,.\-:]+\s*/, '');
+        // Strip [VISUAL: ...] tags before speaking
+        let cleanText = text.replace(/\[VISUAL:[^\]]+\]/gi, '').replace(/<[^>]*>?/gm, '');
+        const boilerplateRegex =
+        /(سلام أ خويا \/ أ ختي[،,] ما تخافش|سلام أ ختي[،,] ما تخافيش|سلام أ خويا[،,] ما تخافش|سلام أ خويا|سلام أ ختي|ما تخافش|ما تخافيش|نزيدو نشوفو هادشي|هنا معاك|سلام!?)/gi;
+        cleanText = cleanText.replace(boilerplateRegex, '').trim();
+        cleanText = cleanText.replace(/^[،,.\-:]+\s*/, '');
 
-    const arabicCharCount = (cleanText.match(/[\u0600-\u06FF]/g) || []).length;
+        const arabicCharCount = (cleanText.match(/[\u0600-\u06FF]/g) || []).length;
     const isArabic = arabicCharCount > cleanText.length * 0.1;
-    const frenchRegex = /[éèêëàâîïôùûç]|(\b(le|la|les|un|une|des|et|est|sur|avec|pour|dans|qui|que)\b)/i;
-    const isFrench = frenchRegex.test(cleanText);
+        const frenchRegex = /[éèêëàâîïôùûç]|(\b(le|la|les|un|une|des|et|est|sur|avec|pour|dans|qui|que)\b)/i;
+        const isFrench = frenchRegex.test(cleanText);
 
-    let targetLang = 'en-US';
-    if (isArabic) targetLang = 'ar-SA';
-    else if (isFrench) targetLang = 'fr-FR';
+        let targetLang = 'en-US';
+        if (isArabic) targetLang = 'ar-SA';
+        else if (isFrench) targetLang = 'fr-FR';
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = targetLang;
-    const voices = window.speechSynthesis.getVoices();
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = targetLang;
+        const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
       const voice = voices.find(
         (v) => v.lang.startsWith(targetLang) || v.lang.startsWith(targetLang.split('-')[0])
-      );
-      if (voice) utterance.voice = voice;
+        );
+        if (voice) utterance.voice = voice;
     }
-    window.speechSynthesis.speak(utterance);
+        window.speechSynthesis.speak(utterance);
   }, [isTtsEnabled]);
 
   const downloadLesson = (text) => {
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `krysed-lesson-${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const blob = new Blob([text], {type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `krysed-lesson-${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
   };
 
   const handleSend = async (e) => {
-    e?.preventDefault();
-    if (!input.trim() || isLoading) return;
+          e?.preventDefault();
+        if (!input.trim() || isLoading) return;
 
-    const userMsg = input.trim();
-    setInput('');
+        const userMsg = input.trim();
+        setInput('');
 
-    const newUserMessage = {
-      id: Date.now().toString(),
-      text: userMsg,
-      sender: 'user',
-      timestamp: new Date(),
+        const newUserMessage = {
+          id: Date.now().toString(),
+        text: userMsg,
+        sender: 'user',
+        timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
-    setIsLoading(true);
+        setIsLoading(true);
 
-    try {
-      // ── Mock Mode: skip the API entirely ──────────────────────────────────
+        try {
       if (isMockMode) {
-        await new Promise((r) => setTimeout(r, 600)); // tiny realistic delay
+        await new Promise((r) => setTimeout(r, 1200)); // Realistic thinking delay
+        
+        let responseText = "";
+        const query = userMsg.toLowerCase();
+
+        if (query.includes('math') || query.includes('fraction')) {
+          responseText = "📖 **LESSON: Fractions (الأعداد الكسرية)**\n\nImagine cutting a **Harcha** into 4 pieces. If you eat one, you've taken **1/4**. \n\n🎯 **Check:** If we have 8 pieces and take 2, is that the same as 1/4? Think about it!\n\n![math](https://picsum.photos/400/200)";
+        } else if (query.includes('science') || query.includes('nature') || query.includes('volcano')) {
+          responseText = "🌋 **LESSON: Earth Science (علوم الأرض)**\n\nA volcano is like a pressure cooker (طنجرة الضغط). When the heat gets too high, the magma pushes through the surface! \n\n💡 **Insight:** Even when the ground shakes, stay calm and keep learning.\n\n![science](https://picsum.photos/400/200)";
+        } else {
+          responseText = "أهلاً! أنا معاك. I can help you with **Math** or **Science** right now. شنو بغيتي نراجعو؟ \n\n(Note: Using Emergency Offline Cache)";
+        }
+
         const mockMsg = {
-          id: (Date.now() + 1).toString(),
-          text: MOCK_RESPONSE,
+          id: Date.now().toString(),
+          text: responseText,
           sender: 'bot',
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, mockMsg]);
-        speakText(MOCK_RESPONSE);
+        speakText(responseText);
         return;
       }
-      // ─────────────────────────────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
 
-      if (!chatSessionRef.current)
+        if (!chatSessionRef.current)
         throw new Error('MISSING_KEY');
 
       // Always prepend crisis context if one is selected
       const crisisData = activeCrisis ? CRISIS_TYPES.find((c) => c.id === activeCrisis) : null;
-      
-      let contextPrefix = '';
-      if (activeCrisis === 'disaster') {
-        contextPrefix = `Context: Student is in a crisis zone. Keep lessons relevant to their situation.\n\n`;
+
+        let contextPrefix = '';
+        if (activeCrisis === 'disaster') {
+          contextPrefix = `Context: Student is in a crisis zone. Keep lessons relevant to their situation.\n\n`;
       } else if (activeCrisis === 'nopower') {
-        contextPrefix = `Context: Student has limited battery. Keep responses short and concise.\n\n`;
+          contextPrefix = `Context: Student has limited battery. Keep responses short and concise.\n\n`;
       }
 
-      const apiPrompt = contextPrefix ? `${contextPrefix}USER MESSAGE: ${userMsg}` : userMsg;
+        const apiPrompt = contextPrefix ? `${contextPrefix}USER MESSAGE: ${userMsg}` : userMsg;
 
-      const result = await chatSessionRef.current.sendMessage(apiPrompt);
-      const responseText = result.response.text();
+        const result = await chatSessionRef.current.sendMessage(apiPrompt);
+        const responseText = result.response.text();
 
-      const botMessage = {
-        id: (Date.now() + 1).toString(),
+        const botMessage = {
+          id: (Date.now() + 1).toString(),
         text: responseText,
         sender: 'bot',
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, botMessage]);
-      speakText(responseText);
+        speakText(responseText);
     } catch (error) {
-      // Log the full real error so we can see the exact HTTP status and message
-      console.error('Real API Error:', error);
+          // Log the full real error so we can see the exact HTTP status and message
+          console.error('Real API Error:', error);
 
-      // ── Auto-switch to Mock Mode on 429 (rate limit / quota exceeded) ────
-      const is429 =
+        // ── Auto-switch to Mock Mode on 429 (rate limit / quota exceeded) ────
+        const is429 =
         error?.status === 429 ||
         error?.message?.includes('429') ||
         error?.message?.toLowerCase().includes('quota') ||
         error?.message?.toLowerCase().includes('rate');
 
-      if (is429) {
-        setIsMockMode(true);
+        if (is429) {
+          setIsMockMode(true);
         const switchMsg = {
           id: (Date.now() + 1).toString(),
-          text: '⚡ API quota reached — switching to **Mock Mode** so the demo keeps working.\n\n' + MOCK_RESPONSE,
-          sender: 'bot',
-          timestamp: new Date(),
+        text: '⚡ API quota reached — switching to **Mock Mode** so the demo keeps working.\n\n' + MOCK_RESPONSE,
+        sender: 'bot',
+        timestamp: new Date(),
         };
         setMessages((prev) => [...prev, switchMsg]);
         speakText(MOCK_RESPONSE);
         return;
       }
-      // ─────────────────────────────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
 
-      let errorText;
-      if (error?.message === 'MISSING_KEY') {
-        errorText = '⚠️ API key missing. Add VITE_GEMINI_API_KEY to your .env file and restart the dev server.';
+        let errorText;
+        if (error?.message === 'MISSING_KEY') {
+          errorText = '⚠️ API key missing. Add VITE_GEMINI_API_KEY to your .env file and restart the dev server.';
       } else {
-        errorText = `API Error: ${error?.message ?? 'Unknown error. Check the console for details.'}`;
+          errorText = `API Error: ${error?.message ?? 'Unknown error. Check the console for details.'}`;
       }
 
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          text: errorText,
-          sender: 'bot',
-          timestamp: new Date(),
+        text: errorText,
+        sender: 'bot',
+        timestamp: new Date(),
         },
-      ]);
+        ]);
     } finally {
-      setIsLoading(false);
+          setIsLoading(false);
     }
   };
 
-  // ─── Derived values ────────────────────────────────────────────────────────
-  const activeCrisisData = activeCrisis
+        // ─── Derived values ────────────────────────────────────────────────────────
+        const activeCrisisData = activeCrisis
     ? CRISIS_TYPES.find((c) => c.id === activeCrisis)
-    : null;
-  // ─────────────────────────────────────────────────────────────────────────────
+        : null;
+        // ─────────────────────────────────────────────────────────────────────────────
 
-  // ─── Paper Mode: plain wrapper with no gradients/animations ───────────────
-  if (isPaperMode) {
+        // ─── Paper Mode: plain wrapper with no gradients/animations ───────────────
+        if (isPaperMode) {
     return (
-      <div className="flex flex-col h-screen bg-white text-gray-900 font-sans">
-        {/* Paper Header */}
-        <header className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-300">
-          <div className="flex items-center gap-2">
-            <BookOpen size={20} className="text-gray-700" />
-            <div>
-              <h1 className="font-bold text-base text-gray-900">Krysed</h1>
-              <p className="text-xs text-gray-500">Emergency Education AI</p>
+        <div className="flex flex-col h-screen bg-white text-gray-900 font-sans">
+          {/* Paper Header */}
+          <header className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-300">
+            <div className="flex items-center gap-2">
+              <BookOpen size={20} className="text-gray-700" />
+              <div>
+                <h1 className="font-bold text-base text-gray-900">Krysed</h1>
+                <p className="text-xs text-gray-500">Emergency Education AI</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Mock Mode badge */}
-            {isMockMode && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-                <Zap size={10} /> DEMO
-                <button onClick={() => setIsMockMode(false)} className="ml-1 underline font-normal">Exit</button>
-              </span>
-            )}
-            {/* Crisis selectors (text only, no glow) */}
-            <div className="flex gap-1 border border-gray-300 rounded p-0.5">
-              {CRISIS_TYPES.map((crisis) => (
-                <button
-                  key={crisis.id}
-                  onClick={() => setActiveCrisis(activeCrisis === crisis.id ? null : crisis.id)}
-                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                    activeCrisis === crisis.id
+            <div className="flex items-center gap-2">
+              {/* Mock Mode badge */}
+              {isMockMode && (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                  <Zap size={10} /> DEMO
+                  <button onClick={() => setIsMockMode(false)} className="ml-1 underline font-normal">Exit</button>
+                </span>
+              )}
+              {/* Crisis selectors (text only, no glow) */}
+              <div className="flex gap-1 border border-gray-300 rounded p-0.5">
+                {CRISIS_TYPES.map((crisis) => (
+                  <button
+                    key={crisis.id}
+                    onClick={() => setActiveCrisis(activeCrisis === crisis.id ? null : crisis.id)}
+                    className={`px-2 py-1 text-xs rounded transition-colors ${activeCrisis === crisis.id
                       ? 'bg-gray-900 text-white font-semibold'
                       : 'text-gray-600 hover:bg-gray-200'
-                  }`}
-                  aria-pressed={activeCrisis === crisis.id}
-                >
-                  {crisis.icon} <span className="hidden sm:inline">{crisis.label}</span>
-                </button>
-              ))}
+                      }`}
+                    aria-pressed={activeCrisis === crisis.id}
+                  >
+                    {crisis.icon} <span className="hidden sm:inline">{crisis.label}</span>
+                  </button>
+                ))}
+              </div>
+              {/* Exit Paper Mode */}
+              <button
+                onClick={() => setIsPaperMode(false)}
+                className="px-2 py-1 text-xs bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors flex items-center gap-1"
+                title="Exit Paper Mode"
+              >
+                <FileText size={12} /> Exit
+              </button>
             </div>
-            {/* Exit Paper Mode */}
-            <button
-              onClick={() => setIsPaperMode(false)}
-              className="px-2 py-1 text-xs bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors flex items-center gap-1"
-              title="Exit Paper Mode"
-            >
-              <FileText size={12} /> Exit
-            </button>
-          </div>
-        </header>
+          </header>
 
-        {/* Crisis banner */}
-        {activeCrisisData && (
-          <div className="px-4 py-1.5 bg-gray-200 border-b border-gray-300 text-xs text-gray-700 flex items-center justify-between">
-            <span>{activeCrisisData.icon} <strong>SITUATION AWARENESS:</strong> {activeCrisisData.prompt}</span>
-            <button onClick={() => setActiveCrisis(null)} className="underline text-gray-500 hover:text-gray-800">Dismiss</button>
-          </div>
-        )}
+          {/* Crisis banner */}
+          {activeCrisisData && (
+            <div className="px-4 py-1.5 bg-gray-200 border-b border-gray-300 text-xs text-gray-700 flex items-center justify-between">
+              <span>{activeCrisisData.icon} <strong>SITUATION AWARENESS:</strong> {activeCrisisData.prompt}</span>
+              <button onClick={() => setActiveCrisis(null)} className="underline text-gray-500 hover:text-gray-800">Dismiss</button>
+            </div>
+          )}
 
-        {/* Messages */}
-        <main className="flex-1 overflow-y-auto p-4">
-          <div className="max-w-2xl mx-auto space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {message.sender === 'bot' && (
-                  <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Bot size={14} className="text-gray-600" />
-                  </div>
-                )}
+          {/* Messages */}
+          <main className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-2xl mx-auto space-y-4">
+              {messages.map((message) => (
+                <div key={message.id} className={`flex gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {message.sender === 'bot' && (
+                    <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Bot size={14} className="text-gray-600" />
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[85%] px-3 py-2 rounded text-sm leading-relaxed relative group ${
-                      message.sender === 'user'
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 border border-gray-300 text-gray-900'
-                    }`}
+                    className={`max-w-[85%] px-3 py-2 rounded text-sm leading-relaxed relative group ${message.sender === 'user'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 border border-gray-300 text-gray-900'
+                      }`}
                     style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
                   >
                     {message.sender === 'bot' ? (
-                      <div style={{ whiteSpace: 'pre-wrap' }}>{renderBotText(message.text)}</div>
+                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                        {renderBotText(message.text)}
+                      </div>
                     ) : message.text}
 
                     {message.sender === 'bot' && (
@@ -444,348 +474,346 @@ function App() {
                       </button>
                     )}
                   </div>
-                {message.sender === 'user' && (
-                  <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <UserIcon size={14} className="text-gray-600" />
+                  {message.sender === 'user' && (
+                    <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <UserIcon size={14} className="text-gray-600" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex gap-2 justify-start">
+                  <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0">
+                    <Bot size={14} className="text-gray-600" />
+                  </div>
+                  <div className="px-3 py-2 rounded bg-gray-100 border border-gray-300 text-gray-500 text-sm">Thinking…</div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </main>
+
+          {/* Input */}
+          <footer className="p-3 bg-gray-100 border-t border-gray-300">
+            <div className="max-w-2xl mx-auto">
+              <form onSubmit={handleSend} className="flex gap-2">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                  placeholder="Ask a question…"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm resize-none min-h-[40px] max-h-28 focus:outline-none focus:ring-1 focus:ring-gray-500 text-gray-900 bg-white"
+                  rows={1}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="px-4 py-2 bg-gray-900 text-white rounded text-sm disabled:opacity-40 hover:bg-gray-700 transition-colors self-end"
+                >
+                  <Send size={16} />
+                </button>
+              </form>
+              <p className="text-center mt-1 text-[10px] text-gray-400">Powered by Gemini 3 Flash Preview · Paper Mode (low bandwidth)</p>
+            </div>
+          </footer>
+        </div>
+        );
+  }
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        return (
+        <div className={`relative flex flex-col h-screen text-text-main font-sans overflow-hidden ${activeCrisis === 'nopower' ? 'high-contrast-theme' : ''}`}>
+
+          {/* ── Full-bleed background layer ──────────────────────────────────────── */}
+          {activeCrisisData && (
+            <div
+              key={bgKey}
+              className="crisis-bg-layer absolute inset-0 z-0 pointer-events-none"
+              aria-hidden="true"
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: crisisBg?.url
+                    ? `url("${crisisBg.url}") center/cover no-repeat`
+                    : activeCrisisData.gradient,
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: activeCrisisData.overlayColor }}
+              />
+            </div>
+          )}
+          {/* ── /background layer ───────────────────────────────────────────────── */}
+
+          <div className="relative z-10 flex flex-col h-full">
+
+            {/* ── Header ───────────────────────────────────────────────────────── */}
+            <header
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 bg-bg-surface/80 backdrop-blur-md border-b border-border shadow-md gap-3"
+              style={{ background: 'linear-gradient(to right, #062c1e 0%, #000000 100%)' }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                  <BookOpen size={20} />
+                </div>
+                <div>
+                  <h1 className="font-bold text-lg leading-tight tracking-tight">Krysed</h1>
+                  <p className="text-xs text-text-muted">Emergency Education AI</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+
+                {/* ── Status Badge ─────────────────────────────────────────── */}
+                {isMockMode && (
+                  <div className="status-badge-offline animate-pulse" title="Operating on emergency local cache">
+                    <Zap size={10} fill="currentColor" /> Status: Offline Mode / Emergency Cache
                   </div>
                 )}
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex gap-2 justify-start">
-                <div className="h-7 w-7 rounded-full border border-gray-400 flex items-center justify-center flex-shrink-0">
-                  <Bot size={14} className="text-gray-600" />
-                </div>
-                <div className="px-3 py-2 rounded bg-gray-100 border border-gray-300 text-gray-500 text-sm">Thinking…</div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </main>
 
-        {/* Input */}
-        <footer className="p-3 bg-gray-100 border-t border-gray-300">
-          <div className="max-w-2xl mx-auto">
-            <form onSubmit={handleSend} className="flex gap-2">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Ask a question…"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm resize-none min-h-[40px] max-h-28 focus:outline-none focus:ring-1 focus:ring-gray-500 text-gray-900 bg-white"
-                rows={1}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="px-4 py-2 bg-gray-900 text-white rounded text-sm disabled:opacity-40 hover:bg-gray-700 transition-colors self-end"
-              >
-                <Send size={16} />
-              </button>
-            </form>
-            <p className="text-center mt-1 text-[10px] text-gray-400">Powered by Gemini 3 Flash Preview · Paper Mode (low bandwidth)</p>
-          </div>
-        </footer>
-      </div>
-    );
-  }
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  return (
-    <div className={`relative flex flex-col h-screen text-text-main font-sans overflow-hidden ${activeCrisis === 'nopower' ? 'high-contrast-theme' : ''}`}>
-
-      {/* ── Full-bleed background layer ──────────────────────────────────────── */}
-      {activeCrisisData && (
-        <div
-          key={bgKey}
-          className="crisis-bg-layer absolute inset-0 z-0 pointer-events-none"
-          aria-hidden="true"
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              background: crisisBg?.url
-                ? `url("${crisisBg.url}") center/cover no-repeat`
-                : activeCrisisData.gradient,
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: activeCrisisData.overlayColor }}
-          />
-        </div>
-      )}
-      {/* ── /background layer ───────────────────────────────────────────────── */}
-
-      <div className="relative z-10 flex flex-col h-full">
-
-        {/* ── Header ───────────────────────────────────────────────────────── */}
-        <header 
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 bg-bg-surface/80 backdrop-blur-md border-b border-border shadow-md gap-3"
-          style={{ background: 'linear-gradient(to right, #062c1e 0%, #000000 100%)' }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/20 rounded-lg text-primary">
-              <BookOpen size={20} />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight tracking-tight">Krysed</h1>
-              <p className="text-xs text-text-muted">Emergency Education AI</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
-
-            {/* ── Mock Mode badge (normal mode) ──────────────────────────── */}
-            {isMockMode && (
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/40 animate-pulse">
-                <Zap size={12} /> DEMO MODE
-                <button
-                  onClick={() => setIsMockMode(false)}
-                  className="ml-1 text-amber-400 hover:text-white transition-colors font-normal underline underline-offset-2"
-                  title="Exit Mock Mode and return to live API"
-                >
-                  Exit
-                </button>
-              </span>
-            )}
-
-            {/* ── Crisis Selector ───────────────────────────────────────────── */}
-            <div className="flex gap-1.5 bg-black/40 p-1 rounded-full border border-white/10 backdrop-blur-sm">
-              {CRISIS_TYPES.map((crisis) => {
-                const isActive = activeCrisis === crisis.id;
-                return (
-                  <button
-                    key={crisis.id}
-                    onClick={() => setActiveCrisis(isActive ? null : crisis.id)}
-                    className={`
+                {/* ── Crisis Selector ───────────────────────────────────────────── */}
+                <div className="flex gap-1.5 bg-black/40 p-1 rounded-full border border-white/10 backdrop-blur-sm">
+                  {CRISIS_TYPES.map((crisis) => {
+                    const isActive = activeCrisis === crisis.id;
+                    return (
+                      <button
+                        key={crisis.id}
+                        onClick={() => setActiveCrisis(isActive ? null : crisis.id)}
+                        className={`
                       relative px-3 py-1.5 rounded-full text-sm transition-all duration-300
                       flex items-center gap-1.5 select-none
                       ${isActive ? 'crisis-btn-active font-bold text-white shadow-lg' : 'text-text-muted hover:text-text-main hover:bg-white/10'}
                     `}
-                    style={
-                      isActive
-                        ? {
-                            background: crisis.bannerBg,
-                            boxShadow: `0 0 15px ${crisis.bannerColor}44`,
-                            border: `1px solid ${crisis.bannerColor}88`,
-                          }
-                        : {
-                            border: '1px solid transparent'
-                          }
-                    }
-                    title={`Toggle ${crisis.label}`}
-                    aria-pressed={isActive}
-                  >
-                    <span
-                      className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-                    >
-                      {crisis.icon}
-                    </span>
-                    <span className="hidden lg:inline text-xs">{crisis.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+                        style={
+                          isActive
+                            ? {
+                              background: crisis.bannerBg,
+                              boxShadow: `0 0 15px ${crisis.bannerColor}44`,
+                              border: `1px solid ${crisis.bannerColor}88`,
+                            }
+                            : {
+                              border: '1px solid transparent'
+                            }
+                        }
+                        title={`Toggle ${crisis.label}`}
+                        aria-pressed={isActive}
+                      >
+                        <span
+                          className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+                        >
+                          {crisis.icon}
+                        </span>
+                        <span className="hidden lg:inline text-xs">{crisis.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-            {/* ── Paper Mode Toggle ─────────────────────────────────────────── */}
-            <button
-              onClick={() => setIsPaperMode(true)}
-              className="p-2 rounded-lg transition-all border bg-bg-dark/70 text-text-muted border-border hover:bg-white/5 hover:text-text-main"
-              title="Paper Mode (low bandwidth — strips colors & animations)"
-            >
-              <FileText size={18} />
-            </button>
-
-            {/* ── TTS Toggle ───────────────────────────────────────────────── */}
-            <button
-              onClick={() => {
-                setIsTtsEnabled(!isTtsEnabled);
-                if (isTtsEnabled) window.speechSynthesis.cancel();
-              }}
-              className={`p-2 rounded-lg transition-all border ${
-                isTtsEnabled
-                  ? 'bg-primary/20 text-primary border-primary/30'
-                  : 'bg-bg-dark/70 text-text-muted border-border hover:bg-white/5'
-              }`}
-              title={isTtsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
-              aria-pressed={isTtsEnabled}
-            >
-              {isTtsEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            </button>
-
-            {/* ── Clear History ────────────────────────────────────────────── */}
-            <button
-              onClick={clearHistory}
-              className="p-2 rounded-lg transition-all border bg-bg-dark/70 text-red-400 border-red-400/30 hover:bg-red-500/10 hover:border-red-400/50"
-              title="Clear all messages and history"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
-        </header>
-        {/* ── /Header ──────────────────────────────────────────────────────── */}
-
-        {/* ── Crisis Active Banner ──────────────────────────────────────────── */}
-        {activeCrisisData && (
-          <div
-            key={`banner-${activeCrisisData.id}`}
-            className="crisis-banner flex items-center justify-between px-4 py-2 text-xs font-medium tracking-wide"
-            style={{
-              background: activeCrisisData.bannerBg,
-              borderBottom: `1px solid ${activeCrisisData.bannerColor}44`,
-              color: activeCrisisData.bannerColor,
-              backdropFilter: 'blur(8px)',
-            }}
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-base">{activeCrisisData.icon}</span>
-              <span>
-                <strong>SITUATION AWARENESS:</strong>
-                {' '}{activeCrisisData.prompt}
-              </span>
-            </span>
-            <button
-              onClick={() => setActiveCrisis(null)}
-              className="ml-4 opacity-60 hover:opacity-100 transition-opacity text-xs underline underline-offset-2 shrink-0"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-        {/* ── /Crisis Active Banner ─────────────────────────────────────────── */}
-
-        {/* ── Main Chat Area ────────────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto w-full p-4 space-y-6">
-          <div className="max-w-4xl mx-auto space-y-6 flex flex-col">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex w-full gap-3 transition-all message-animate ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {message.sender === 'bot' && (
-                  <div className="flex-shrink-0 mt-1 h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white border-2 border-white/20 shadow-lg">
-                    <span className="text-lg">🛡️</span>
-                  </div>
-                )}
-
-                <div
-                  className={`w-fit max-w-[90%] sm:max-w-[85%] md:max-w-3xl lg:max-w-4xl px-4 py-3 rounded-2xl shadow-sm text-[15px] leading-relaxed break-words relative group ${
-                    message.sender === 'user'
-                      ? 'bg-primary text-white bubble-user'
-                      : 'bg-bg-message/90 backdrop-blur-sm border border-border text-text-main bubble-bot'
-                  }`}
-                  style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
+                {/* ── Paper Mode Toggle ─────────────────────────────────────────── */}
+                <button
+                  onClick={() => setIsPaperMode(true)}
+                  className="p-2 rounded-lg transition-all border bg-bg-dark/70 text-text-muted border-border hover:bg-white/5 hover:text-text-main"
+                  title="Paper Mode (low bandwidth — strips colors & animations)"
                 >
-                  {message.sender === 'bot' ? (
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{renderBotText(message.text)}</div>
-                  ) : (
-                    message.text
-                  )}
+                  <FileText size={18} />
+                </button>
 
-                  {message.sender === 'bot' && (
-                    <button
-                      onClick={() => downloadLesson(message.text)}
-                      className="absolute -right-10 top-2 p-2 rounded-lg bg-bg-surface/50 border border-border text-text-muted hover:text-primary hover:border-primary/50 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
-                      title="Save Lesson Offline"
+                {/* ── TTS Toggle ───────────────────────────────────────────────── */}
+                <button
+                  onClick={() => {
+                    setIsTtsEnabled(!isTtsEnabled);
+                    if (isTtsEnabled) window.speechSynthesis.cancel();
+                  }}
+                  className={`p-2 rounded-lg transition-all border ${isTtsEnabled
+                    ? 'bg-primary/20 text-primary border-primary/30'
+                    : 'bg-bg-dark/70 text-text-muted border-border hover:bg-white/5'
+                    }`}
+                  title={isTtsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
+                  aria-pressed={isTtsEnabled}
+                >
+                  {isTtsEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                </button>
+
+                {/* ── Clear History ────────────────────────────────────────────── */}
+                <button
+                  onClick={clearHistory}
+                  className="p-2 rounded-lg transition-all border bg-bg-dark/70 text-red-400 border-red-400/30 hover:bg-red-500/10 hover:border-red-400/50"
+                  title="Clear all messages and history"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </header>
+            {/* ── /Header ──────────────────────────────────────────────────────── */}
+
+            {/* ── Crisis Active Banner ──────────────────────────────────────────── */}
+            {activeCrisisData && (
+              <div
+                key={`banner-${activeCrisisData.id}`}
+                className="crisis-banner flex items-center justify-between px-4 py-2 text-xs font-medium tracking-wide"
+                style={{
+                  background: activeCrisisData.bannerBg,
+                  borderBottom: `1px solid ${activeCrisisData.bannerColor}44`,
+                  color: activeCrisisData.bannerColor,
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-base">{activeCrisisData.icon}</span>
+                  <span>
+                    <strong>SITUATION AWARENESS:</strong>
+                    {' '}{activeCrisisData.prompt}
+                  </span>
+                </span>
+                <button
+                  onClick={() => setActiveCrisis(null)}
+                  className="ml-4 opacity-60 hover:opacity-100 transition-opacity text-xs underline underline-offset-2 shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+            {/* ── /Crisis Active Banner ─────────────────────────────────────────── */}
+
+            {/* ── Main Chat Area ────────────────────────────────────────────────── */}
+            <main className="flex-1 overflow-y-auto w-full p-4 space-y-6">
+              <div className="max-w-4xl mx-auto space-y-6 flex flex-col">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex w-full gap-3 transition-all message-animate ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {message.sender === 'bot' && (
+                      <div className="flex-shrink-0 mt-1 h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white border-2 border-white/20 shadow-lg">
+                        <span className="text-lg">🛡️</span>
+                      </div>
+                    )}
+
+                    <div
+                      className={`w-fit max-w-[90%] sm:max-w-[85%] md:max-w-3xl lg:max-w-4xl px-4 py-3 rounded-2xl shadow-sm text-[15px] leading-relaxed break-words relative group glass-effect ${message.sender === 'user'
+                        ? 'bg-primary text-white bubble-user'
+                        : 'border border-border text-text-main bubble-bot'
+                        }`}
+                      style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
                     >
-                      <Download size={16} />
-                    </button>
-                  )}
-                </div>
+                      {message.sender === 'bot' ? (
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                          {renderBotText(message.text)}
+                        </div>
+                      ) : (
+                        message.text
+                      )}
 
-                {message.sender === 'user' && (
-                  <div className="flex-shrink-0 mt-1 h-10 w-10 rounded-full bg-border flex items-center justify-center text-text-muted border-2 border-white/10 shadow-sm">
-                    <UserIcon size={20} />
+                      {message.sender === 'bot' && (
+                        <button
+                          onClick={() => downloadLesson(message.text)}
+                          className="absolute -right-10 top-2 p-2 rounded-lg bg-bg-surface/50 border border-border text-text-muted hover:text-primary hover:border-primary/50 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                          title="Save Lesson Offline"
+                        >
+                          <Download size={16} />
+                        </button>
+                      )}
+                    </div>
+
+                    {message.sender === 'user' && (
+                      <div className="flex-shrink-0 mt-1 h-10 w-10 rounded-full bg-border flex items-center justify-center text-text-muted border-2 border-white/10 shadow-sm">
+                        <UserIcon size={20} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex w-full gap-3 justify-start">
+                    <div className="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
+                      <Bot size={18} />
+                    </div>
+                    <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-bg-message/90 backdrop-blur-sm border border-border text-text-muted flex items-center gap-2">
+                      <Loader2 size={16} className="animate-spin text-primary" />
+                      <span className="text-[15px]">Thinking…</span>
+                    </div>
                   </div>
                 )}
+
+                <div ref={messagesEndRef} />
               </div>
-            ))}
+            </main>
+            {/* ── /Main Chat Area ───────────────────────────────────────────────── */}
 
-            {isLoading && (
-              <div className="flex w-full gap-3 justify-start">
-                <div className="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
-                  <Bot size={18} />
-                </div>
-                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-bg-message/90 backdrop-blur-sm border border-border text-text-muted flex items-center gap-2">
-                  <Loader2 size={16} className="animate-spin text-primary" />
-                  <span className="text-[15px]">Thinking…</span>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-        </main>
-        {/* ── /Main Chat Area ───────────────────────────────────────────────── */}
-
-        {/* ── Footer / Input Area ───────────────────────────────────────────── */}
-        <footer className="p-4 bg-bg-dark/80 backdrop-blur-md border-t border-border">
-          <div className="max-w-3xl mx-auto">
-            <form
-              onSubmit={handleSend}
-              className="flex items-end gap-2 bg-bg-surface/90 backdrop-blur-sm p-2 rounded-2xl border border-border shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40 transition-all duration-300"
-            >
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Ask a question…"
-                className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none resize-none focus:outline-none focus:ring-0 px-3 py-3 text-text-main placeholder:text-text-muted text-[15px]"
-                rows={1}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="mb-1 mr-1 p-3 rounded-xl bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover active:scale-95 transition-all self-end flex-shrink-0"
-              >
-                <Send size={18} />
-              </button>
-            </form>
-
-            {/* Unsplash photo credit */}
-            {crisisBg?.credit && (
-              <div className="flex items-center justify-center gap-1 mt-1.5 text-[10px] text-text-muted/60">
-                <span>
-                  Photo by{' '}
-                  <a
-                    href={`${crisisBg.credit.link}?utm_source=krysed&utm_medium=referral`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-text-muted transition-colors"
+            {/* ── Footer / Input Area ───────────────────────────────────────────── */}
+            <footer className="p-4 bg-bg-dark/80 backdrop-blur-md border-t border-border">
+              <div className="max-w-3xl mx-auto">
+                <form
+                  onSubmit={handleSend}
+                  className="flex items-end gap-2 bg-bg-surface/90 backdrop-blur-sm p-2 rounded-2xl border border-border shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40 transition-all duration-300"
+                >
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder="Ask a question…"
+                    className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none resize-none focus:outline-none focus:ring-0 px-3 py-3 text-text-main placeholder:text-text-muted text-[15px]"
+                    rows={1}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="mb-1 mr-1 p-3 rounded-xl bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover active:scale-95 transition-all self-end flex-shrink-0"
                   >
-                    {crisisBg.credit.name}
-                  </a>{' '}
-                  on{' '}
-                  <a
-                    href="https://unsplash.com?utm_source=krysed&utm_medium=referral"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-text-muted transition-colors"
-                  >
-                    Unsplash
-                  </a>
-                </span>
+                    <Send size={18} />
+                  </button>
+                </form>
+
+                {/* Unsplash photo credit */}
+                {crisisBg?.credit && (
+                  <div className="flex items-center justify-center gap-1 mt-1.5 text-[10px] text-text-muted/60">
+                    <span>
+                      Photo by{' '}
+                      <a
+                        href={`${crisisBg.credit.link}?utm_source=krysed&utm_medium=referral`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-text-muted transition-colors"
+                      >
+                        {crisisBg.credit.name}
+                      </a>{' '}
+                      on{' '}
+                      <a
+                        href="https://unsplash.com?utm_source=krysed&utm_medium=referral"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-text-muted transition-colors"
+                      >
+                        Unsplash
+                      </a>
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-center mt-1 pb-1">
+                  {isMockMode && (
+                    <p className="text-[10px] text-amber-500 font-bold tracking-tight mb-1 flex items-center justify-center gap-1.5 opacity-80">
+                      📶 Mode: Local Emergency Cache Active
+                    </p>
+                  )}
+                  <p className="text-[11px] text-text-muted flex items-center justify-center gap-1">
+                    Powered by Gemini 3 Flash Preview <Bot size={10} />
+                  </p>
+                </div>
               </div>
-            )}
+            </footer>
+            {/* ── /Footer ──────────────────────────────────────────────────────── */}
 
-            <div className="text-center mt-1 pb-1">
-              <p className="text-[11px] text-text-muted flex items-center justify-center gap-1">
-                Powered by Gemini 3 Flash Preview <Bot size={10} />
-              </p>
-            </div>
           </div>
-        </footer>
-        {/* ── /Footer ──────────────────────────────────────────────────────── */}
-
-      </div>
-    </div>
-  );
+        </div>
+      );
 }
 
 export default App;

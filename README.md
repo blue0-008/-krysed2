@@ -1,16 +1,39 @@
-# React + Vite
+# Krysed — AI Emergency Education Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> "Learning Never Stops, Even When the World Does"
 
-Currently, two official plugins are available:
+## The Story
+I was sitting in a taxi when I heard two women talking about how their children stayed home for weeks without studying because of the floods. I'm from Morocco. I went through it myself during COVID. Every year something happens here — earthquake in the south, floods in the north, snow blocking roads in the mountains. And every time, students fall behind through no fault of their own.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+I have little siblings who suffered through this. I built Krysed so they never have to again.
 
-## React Compiler
+## What Krysed Does
+Krysed is an AI emergency education platform powered by Gemini 3 Flash. It connects students with their lessons during any crisis — floods, earthquakes, pandemics, power outages.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Speaks Darija (Arabic letters), French, and English**
+- **Adapts** to the student's crisis situation
+- **Structured lessons:** LESSON, IMAGINE THIS, KEY INSIGHT, QUICK CHECK
+- **No Power mode** for low battery situations
+- **Text to speech**
+- **Mock mode** when API quota is reached
 
-## Expanding the ESLint configuration
+## Tech Stack
+- React + Vite
+- Gemini 3 Flash API
+- Firebase Firestore (Google Cloud)
+- Vercel deployment
+- Tailwind CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Live Demo
+[https://krysed2.vercel.app](https://krysed2.vercel.app)
+
+## Setup
+1. Clone the repo
+2. Run `npm install`
+3. Create `.env` file with `VITE_GEMINI_API_KEY=your_key`
+4. Run `npm run dev`
+
+## Built for
+**Gemini Live Agent Challenge 2026 — Creative Storyteller Category**
+
+*This is not a TV generation. They deserve better.*
