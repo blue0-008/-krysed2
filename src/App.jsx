@@ -8,29 +8,8 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
 // ─── Smart Mock Mode Content ────────────────────────────────────────────────
-const MOCK_GREETING = `سلام أ خويا/أ ختي! ما تخافش، أنا ديما هنا معاك باش عاونك فدروسك.
-واخا كاين هاد الظرف الصعب، المعرفة هي السلاح ديالك. قولي، شنو بغيتي نراجعو دابا؟ واش **الرياضيات (Maths)** ولا **العلوم (Sciences)**؟ أنا موجود باش نبسط ليك الأمور.`;
-
-const MOCK_FRACTIONS = `سلام أ خويا! مزيان نسول على الرياضيات، هي اللي كتنظم لينا العقل.
-📖 **LESSON: Les Fractions**
-Une fraction représente une partie d'un tout. Imagine qu'on partage une **Harcha** en parts égales :
-*   Le **numérateur** (le chiffre du haut) : c'est le nombre de parts que tu manges.
-*   Le **dénominateur** (le chiffre du bas) : c'est le nombre total de parts égales.
-
-🖼️ **ANALOGY:** Si tu coupes un gâteau en 4 parts et que tu en prends 1, tu as **1/4** du gâteau !
-💡 **KEY INSIGHT:** Les fractions nous aident à partager équitablement, même quand on a peu.
-🎯 **QUICK CHECK:** Si tu as 3/3 d'une pizza, combien te reste-t-il de la pizza entière ?`;
-
-const MOCK_WATER_CYCLE = `سلام أ ختي! تبارك الله عليك مهتمة بالطبيعة، وخا هي صعيبة دابا، ولكن خاصنا نفهموها.
-📖 **LESSON: Le Cycle de l'Eau**
-L'eau sur Terre est dans un mouvement perpétuel. Voici les étapes clés :
-1.  **Évaporation:** Le soleil chauffe l'eau et elle monte comme de la vapeur.
-2.  **Condensation:** Elle forme des nuages dans le ciel froid.
-3.  **Précipitation:** Elle retombe sous forme de pluie ou de neige.
-
-🖼️ **ANALOGY:** C'est comme la vapeur qui s'échappe d'une marmite et qui redevient des gouttes d'eau sur le couvercle.
-💡 **KEY INSIGHT:** Rien ne se perd, tout se transforme. La nature se régénère toujours.
-🎯 **QUICK CHECK:** Comment appelle-t-on l'étape où la vapeur devient des nuages ?`;
+// Logic moved to handleSend for dynamic response generation.
+// ─────────────────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 
 const INITIAL_MESSAGE = {
@@ -43,7 +22,7 @@ const INITIAL_MESSAGE = {
 const VisualAids = ({ query }) => (
   <div className='my-4 rounded-xl overflow-hidden border-2 border-slate-700 max-w-sm mx-auto shadow-xl'>
     <img
-      src={`https://picsum.photos/400/225?random=${Math.floor(Math.random() * 100)}`}
+      src={`https://loremflickr.com/400/225/${encodeURIComponent(query)}`}
       alt={query}
       className='w-full h-48 object-cover'
       onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800'}
@@ -198,16 +177,13 @@ function App() {
       <ReactMarkdown
         rehypePlugins={[rehypeRaw]}
         components={{
-          span: ({ node, ...props }) => (
-            <span className="border-b border-dashed border-primary/50 cursor-help" {...props} />
-          ),
           p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
           img: ({ node, ...props }) => (
             <img 
               {...props} 
-              src={`https://picsum.photos/400/200?random=${Math.floor(Math.random() * 100)}`}
+              src={`https://loremflickr.com/400/200/${props.alt || 'lesson'}`}
               className="rounded-xl border border-slate-700 my-4 shadow-lg w-full h-auto min-h-[200px] object-cover" 
-              onError={(e) => { e.target.src = 'https://picsum.photos/400/200'; }}
+              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400'; }}
             />
           )
         }}
@@ -281,27 +257,45 @@ function App() {
 
         try {
       if (isMockMode) {
-        await new Promise((r) => setTimeout(r, 1200)); // Realistic thinking delay
+        await new Promise((r) => setTimeout(r, 1000)); // Simulates 'thinking'
         
-        let responseText = "";
-        const query = userMsg.toLowerCase();
+        let dynamicText = "";
+        const userQuery = userMsg.toLowerCase();
 
-        if (query.includes('math') || query.includes('fraction')) {
-          responseText = "📖 **LESSON: Fractions (الأعداد الكسرية)**\n\nImagine cutting a **Harcha** into 4 pieces. If you eat one, you've taken **1/4**. \n\n🎯 **Check:** If we have 8 pieces and take 2, is that the same as 1/4? Think about it!\n\n![math](https://picsum.photos/400/200)";
-        } else if (query.includes('science') || query.includes('nature') || query.includes('volcano')) {
-          responseText = "🌋 **LESSON: Earth Science (علوم الأرض)**\n\nA volcano is like a pressure cooker (طنجرة الضغط). When the heat gets too high, the magma pushes through the surface! \n\n💡 **Insight:** Even when the ground shakes, stay calm and keep learning.\n\n![science](https://picsum.photos/400/200)";
-        } else {
-          responseText = "أهلاً! أنا معاك. I can help you with **Math** or **Science** right now. شنو بغيتي نراجعو؟ \n\n(Note: Using Emergency Offline Cache)";
+        if (userQuery.includes('volcano') || userQuery.includes('science')) {
+          dynamicText = `سلام أ خويا/أ ختي! هاد الدرس على البراكين (Les Volcans). 🌋
+    
+📖 **LESSON:** Un volcan est une ouverture dans la croûte terrestre. Imagine a pressure cooker (طنجرة الضغط) — when the pressure gets too high, it explodes!
+
+🖼️ **IMAGE:** Look at the magma turning into lava below.
+![volcano](volcano)
+
+💡 **KEY INSIGHT:** Nature is powerful, but knowledge is your shield.
+🎯 **QUICK CHECK:** What do we call the melted rock?`;
+        } 
+        else if (userQuery.includes('math') || userQuery.includes('fraction')) {
+          dynamicText = `سلام أ خويا/أ ختي! خلينا نشوفو الأعداد الكسرية (Les Fractions). 🔢
+    
+📖 **LESSON:** Une fraction représente une partie d'un tout — like cutting harcha bread into equal pieces.
+
+🖼️ **IMAGE:** Understanding numbers.
+![fractions](math)
+
+💡 **KEY INSIGHT:** Even if school is closed, we can still divide and conquer these numbers!
+🎯 **QUICK CHECK:** If you cut harcha into 4 pieces and eat 1, what fraction is left?`;
+        } 
+        else {
+          dynamicText = "أهلاً! أنا كريزيد. I'm in Emergency Mode. Ask me about **Volcanoes** or **Math** to start a lesson! \n\n(Local Cache Active 📶)";
         }
 
-        const mockMsg = {
+        const botMessage = {
           id: Date.now().toString(),
-          text: responseText,
+          text: dynamicText,
           sender: 'bot',
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, mockMsg]);
-        speakText(responseText);
+        setMessages((prev) => [...prev, botMessage]);
+        speakText(dynamicText);
         return;
       }
         // ─────────────────────────────────────────────────────────────────────
