@@ -285,7 +285,7 @@ function App() {
 🎯 **QUICK CHECK:** If you cut harcha into 4 pieces and eat 1, what fraction is left?`;
         } 
         else {
-          dynamicText = "أهلاً! أنا كريزيد. I'm in Emergency Mode. Ask me about **Volcanoes** or **Math** to start a lesson! \n\n(Local Cache Active 📶)";
+          dynamicText = "أهلاً! أنا كريزيد. I'm in Emergency Cache Mode. Ask me about **Volcanoes** or **Math** to start a lesson! \n\n(Local Cache Active 📶)";
         }
 
         const botMessage = {
@@ -562,8 +562,8 @@ function App() {
 
                 {/* ── Status Badge ─────────────────────────────────────────── */}
                 {isMockMode && (
-                  <div className="status-badge-offline animate-pulse" title="Operating on emergency local cache">
-                    <Zap size={10} fill="currentColor" /> Status: Offline Mode / Emergency Cache
+                  <div className="status-badge-emergency-cache animate-pulse" title="Operating on emergency local cache">
+                    <Zap size={10} fill="currentColor" /> Emergency Cache Mode
                   </div>
                 )}
 
@@ -641,6 +641,19 @@ function App() {
               </div>
             </header>
             {/* ── /Header ──────────────────────────────────────────────────────── */}
+            {/* ── Emergency Cache Banner ────────────────────────────────────────── */}
+            {isMockMode && (
+              <div 
+                className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center justify-center gap-2 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-500"
+              >
+                <div className="bg-primary/20 p-1 rounded-full text-primary">
+                  <Zap size={12} fill="currentColor" />
+                </div>
+                <p className="text-xs font-bold text-primary tracking-tight">
+                  ⚡ Emergency Cache Active — Learning continues even without internet.
+                </p>
+              </div>
+            )}
 
             {/* ── Crisis Active Banner ──────────────────────────────────────────── */}
             {activeCrisisData && (
@@ -793,8 +806,8 @@ function App() {
 
                 <div className="text-center mt-1 pb-1">
                   {isMockMode && (
-                    <p className="text-[10px] text-amber-500 font-bold tracking-tight mb-1 flex items-center justify-center gap-1.5 opacity-80">
-                      📶 Mode: Local Emergency Cache Active
+                    <p className="text-[10px] text-primary font-bold tracking-tight mb-1 flex items-center justify-center gap-1.5 opacity-80">
+                      📶 Emergency Cache Mode
                     </p>
                   )}
                   <p className="text-[11px] text-text-muted flex items-center justify-center gap-1">

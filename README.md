@@ -15,7 +15,10 @@ Krysed is an AI emergency education platform powered by Gemini 3 Flash. It conne
 - **Structured lessons:** LESSON, IMAGINE THIS, KEY INSIGHT, QUICK CHECK
 - **No Power mode** for low battery situations
 - **Text to speech**
-- **Mock mode** when API quota is reached
+- **Emergency Cache Mode** when API quota is reached
+
+## Why Krysed is Different
+When connectivity fails — and in a crisis, it always does — Krysed switches to Emergency Cache Mode automatically. The lesson never stops. The student never sees an error.
 
 ## Tech Stack
 - React + Vite
