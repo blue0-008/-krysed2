@@ -6,6 +6,8 @@ import { getGeminiChatSession } from './lib/gemini';
 import { fetchCrisisBackground } from './lib/unsplash';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { db } from './lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // ─── Smart Mock Mode Content ────────────────────────────────────────────────
 // Logic moved to handleSend for dynamic response generation.
@@ -121,9 +123,30 @@ function App() {
     }
   }, [messages]);
 
+  // ─── Cloud Sync (Firebase) ────────────────────────────────────────────────
+  const sessionIdRef = useRef(Math.random().toString(36).substring(7));
+
+  const syncMessageToCloud = async (message) => {
+    try {
+      if (!import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === 'YOUR_FIREBASE_API_KEY') {
+        console.warn('Firebase sync skipped: Missing API Key');
+        return;
+      }
+      await addDoc(collection(db, "krysed_chats"), {
+        ...message,
+        sessionId: sessionIdRef.current,
+        cloudTimestamp: serverTimestamp(),
+        crisisContext: activeCrisis || 'none'
+      });
+    } catch (e) {
+      console.error('Error syncing to Firestore:', e);
+    }
+  };
+
   const clearHistory = () => {
     setMessages([INITIAL_MESSAGE]);
     localStorage.removeItem('krysed_messages');
+    sessionIdRef.current = Math.random().toString(36).substring(7); // New session for new start
   };
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -239,137 +262,89 @@ function App() {
   };
 
   const handleSend = async (e) => {
-          e?.preventDefault();
-        if (!input.trim() || isLoading) return;
+    e?.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-        const userMsg = input.trim();
-        setInput('');
+    const userMsg = input.trim();
+    setInput('');
 
-        const newUserMessage = {
-          id: Date.now().toString(),
-        text: userMsg,
-        sender: 'user',
-        timestamp: new Date(),
+    const newUserMessage = {
+      id: Date.now().toString(),
+      text: userMsg,
+      sender: 'user',
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
-        setIsLoading(true);
+    syncMessageToCloud(newUserMessage);
+    setIsLoading(true);
 
-        try {
+    try {
       if (isMockMode) {
-        await new Promise((r) => setTimeout(r, 1000)); // Simulates 'thinking'
-        
+        await new Promise((r) => setTimeout(r, 1000));
         let dynamicText = "";
         const userQuery = userMsg.toLowerCase();
 
-        if (userQuery.includes('volcano') || userQuery.includes('science')) {
-          dynamicText = `سلام أ خويا/أ ختي! هاد الدرس على البراكين (Les Volcans). 🌋
-    
-📖 **LESSON:** Un volcan est une ouverture dans la croûte terrestre. Imagine a pressure cooker (طنجرة الضغط) — when the pressure gets too high, it explodes!
-
-🖼️ **IMAGE:** Look at the magma turning into lava below.
-![volcano](volcano)
-
-💡 **KEY INSIGHT:** Nature is powerful, but knowledge is your shield.
-🎯 **QUICK CHECK:** What do we call the melted rock?`;
-        } 
-        else if (userQuery.includes('math') || userQuery.includes('fraction')) {
-          dynamicText = `سلام أ خويا/أ ختي! خلينا نشوفو الأعداد الكسرية (Les Fractions). 🔢
-    
-📖 **LESSON:** Une fraction représente une partie d'un tout — like cutting harcha bread into equal pieces.
-
-🖼️ **IMAGE:** Understanding numbers.
-![fractions](math)
-
-💡 **KEY INSIGHT:** Even if school is closed, we can still divide and conquer these numbers!
-🎯 **QUICK CHECK:** If you cut harcha into 4 pieces and eat 1, what fraction is left?`;
-        } 
-        else {
-          dynamicText = "أهلاً! أنا كريزيد. I'm in Emergency Cache Mode. Ask me about **Volcanoes** or **Math** to start a lesson! \n\n(Local Cache Active 📶)";
+        if (userQuery.includes('volcano') || userQuery.includes('géographie') || userQuery.includes('geography')) {
+          dynamicText = `سلام أ خويا/أ ختي! هاد الدرس على البراكين (Les Volcans). 🌋\n\n📖 **LESSON:** Un volcan est une ouverture dans la croûte terrestre d'où s'échappent du magma. C'est comme une soupape de sécurité pour la Terre.\n\n🖼️ **IMAGE:** Understanding the core of our planet.\n![volcano](volcano)\n\n💡 **KEY INSIGHT:** Nature is powerful, but knowledge is your shield.\n🎯 **QUICK CHECK:** Qu'appelle-t-on la roche fondue qui sort du volcan ?`;
+        } else if (userQuery.includes('math') || userQuery.includes('fraction') || userQuery.includes('calcul')) {
+          dynamicText = `سلام أ خويا/أ ختي! خلينا نشوفو الأعداد الكسرية (Les Fractions). 🔢\n\n📖 **LESSON:** Une fraction représente une partie d'un tout — imagine partager un pain **Harcha** en morceaux égaux.\n\n🖼️ **IMAGE:** Visualizing math in daily life.\n![fractions](math)\n\n💡 **KEY INSIGHT:** Even if school is closed, we can still divide and conquer these numbers!\n🎯 **QUICK CHECK:** Si tu as 4 parts de gâteau et tu en manges 1, quelle est la fraction restante ?`;
+        } else if (userQuery.includes('eau') || userQuery.includes('water') || userQuery.includes('cycle')) {
+          dynamicText = `سلام أ خويا! تبارك الله عليك مهتم بالماء (Le Cycle de l'Eau). 💧\n\n📖 **LESSON:** L'eau sur Terre circule partout. Évaporation, Condensation, et Précipitations. C'est un cycle sans fin.\n\n🖼️ **IMAGE:** Nature's recycling system.\n![water lifecycle](water)\n\n💡 **KEY INSIGHT:** La nature se régénère toujours.\n🎯 **QUICK CHECK:** Comment appelle-t-on le passage de l'eau liquide à la vapeur ?`;
+        } else if (userQuery.includes('plante') || userQuery.includes('photo') || userQuery.includes('nature')) {
+          dynamicText = `سلام أ ختي! خوك هنا باش يشرح ليك كيفاش كتاكل النبتة (La Photosynthèse). 🌿\n\n📖 **LESSON:** Les plantes fabriquent leur propre nourriture en utilisant la lumière du soleil, l'eau et le CO2.\n\n🖼️ **IMAGE:** Life creating life through light.\n![leaf](photosynthesis)\n\n💡 **KEY INSIGHT:** Sans les plantes, il n'y aurait pas d'oxygène.\n🎯 **QUICK CHECK:** De quoi la plante a-t-elle besoin pour fabriquer son énergie ?`;
+        } else if (userQuery.includes('force') || userQuery.includes('physique') || userQuery.includes('physics')) {
+          dynamicText = `أهلاً! خلينا نكتشفو قوانين الحركة (Force et Mouvement). 🏎️\n\n📖 **LESSON:** Une force est une poussée (push) ou une traction (pull). La gravité est la force qui nous garde sur Terre.\n\n🖼️ **IMAGE:** Physics in action.\n![force](physics)\n\n💡 **KEY INSIGHT:** Comprendre la force, c'est comprendre le monde.\n🎯 **QUICK CHECK:** Qu'arrive-t-il à un objet si aucune force ne s'exerce sur lui ?`;
+        } else {
+          dynamicText = "سلام أ خويا/أ ختي! أنا معاك فهاد الظروف. I'm in Emergency Cache Mode. Ask me about **Math**, **Volcanoes**, **Water Cycle**, **Plants**, or **Physics**! \n\n(Local Cache Active 📶)";
         }
 
-        const botMessage = {
-          id: Date.now().toString(),
-          text: dynamicText,
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, botMessage]);
+        const botMsg = { id: Date.now().toString(), text: dynamicText, sender: 'bot', timestamp: new Date() };
+        setMessages((prev) => [...prev, botMsg]);
+        syncMessageToCloud(botMsg);
         speakText(dynamicText);
         return;
       }
-        // ─────────────────────────────────────────────────────────────────────
 
-        if (!chatSessionRef.current)
-        throw new Error('MISSING_KEY');
+      if (!chatSessionRef.current) throw new Error('MISSING_KEY');
 
-      // Always prepend crisis context if one is selected
-      const crisisData = activeCrisis ? CRISIS_TYPES.find((c) => c.id === activeCrisis) : null;
+      let contextPrefix = '';
+      if (activeCrisis === 'disaster') contextPrefix = `Context: Student is in a crisis zone. Keep lessons relevant.\n\n`;
+      if (activeCrisis === 'nopower') contextPrefix = `Context: Student has limited battery. Keep responses short.\n\n`;
 
-        let contextPrefix = '';
-        if (activeCrisis === 'disaster') {
-          contextPrefix = `Context: Student is in a crisis zone. Keep lessons relevant to their situation.\n\n`;
-      } else if (activeCrisis === 'nopower') {
-          contextPrefix = `Context: Student has limited battery. Keep responses short and concise.\n\n`;
-      }
+      const apiPrompt = contextPrefix ? `${contextPrefix}USER MESSAGE: ${userMsg}` : userMsg;
+      const result = await chatSessionRef.current.sendMessage(apiPrompt);
+      const responseText = result.response.text();
 
-        const apiPrompt = contextPrefix ? `${contextPrefix}USER MESSAGE: ${userMsg}` : userMsg;
+      const botMsg = { id: Date.now().toString(), text: responseText, sender: 'bot', timestamp: new Date() };
+      setMessages((prev) => [...prev, botMsg]);
+      syncMessageToCloud(botMsg);
+      speakText(responseText);
 
-        const result = await chatSessionRef.current.sendMessage(apiPrompt);
-        const responseText = result.response.text();
-
-        const botMessage = {
-          id: (Date.now() + 1).toString(),
-        text: responseText,
-        sender: 'bot',
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
-        speakText(responseText);
     } catch (error) {
-          // Log the full real error so we can see the exact HTTP status and message
-          console.error('Real API Error:', error);
-
-        // ── Auto-switch to Mock Mode on 429 (rate limit / quota exceeded) ────
-        const is429 =
-        error?.status === 429 ||
-        error?.message?.includes('429') ||
-        error?.message?.toLowerCase().includes('quota') ||
-        error?.message?.toLowerCase().includes('rate');
-
-        if (is429) {
-          setIsMockMode(true);
+      console.error('Krysed Error:', error);
+      const isQuota = error?.status === 429 || error?.message?.toLowerCase().includes('quota');
+      
+      if (isQuota) {
+        setIsMockMode(true);
         const switchMsg = {
-          id: (Date.now() + 1).toString(),
-        text: '⚡ API quota reached — switching to **Mock Mode** so the demo keeps working.\n\n' + MOCK_RESPONSE,
-        sender: 'bot',
-        timestamp: new Date(),
+          id: Date.now().toString(),
+          text: '⚡ API quota reached — switching to **Emergency Cache Mode** for uninterrupted learning.',
+          sender: 'bot',
+          timestamp: new Date(),
         };
         setMessages((prev) => [...prev, switchMsg]);
-        speakText(MOCK_RESPONSE);
+        syncMessageToCloud(switchMsg);
         return;
       }
-        // ─────────────────────────────────────────────────────────────────────
 
-        let errorText;
-        if (error?.message === 'MISSING_KEY') {
-          errorText = '⚠️ API key missing. Add VITE_GEMINI_API_KEY to your .env file and restart the dev server.';
-      } else {
-          errorText = `API Error: ${error?.message ?? 'Unknown error. Check the console for details.'}`;
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-        text: errorText,
-        sender: 'bot',
-        timestamp: new Date(),
-        },
-        ]);
+      const errorText = error?.message === 'MISSING_KEY' 
+        ? '⚠️ API key missing. Check your .env setup.' 
+        : `Connection lost. Try asking again or check your Emergency Cache settings.`;
+      
+      setMessages(prev => [...prev, { id: Date.now().toString(), text: errorText, sender: 'bot', timestamp: new Date() }]);
     } finally {
-          setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
