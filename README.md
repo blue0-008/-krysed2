@@ -26,11 +26,14 @@ Krysed is an AI emergency education platform powered by Gemini 3 Flash. It conne
 ## Live Demo
 [https://krysed2.vercel.app](https://krysed2.vercel.app)
 
-## Setup
-1. Clone the repo
-2. Run `npm install`
-3. Create `.env` file with `VITE_GEMINI_API_KEY=your_key`
-4. Run `npm run dev`
+## Setup & Testing
+1. Clone the repo: git clone https://github.com/blue0-008/-krysed2.git
+2. Install dependencies: npm install
+3. Create .env file in root with: VITE_GEMINI_API_KEY=your_gemini_api_key
+4. Get free Gemini API key from: aistudio.google.com/app/apikey
+5. Run locally: npm run dev
+6. Open: http://localhost:5173
+7. Or test live at: https://krysed2.vercel.app
 
 ## Built for
 **Gemini Live Agent Challenge 2026 — Creative Storyteller Category**
