@@ -1,186 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --color-primary: #10b981;
   --color-primary-hover: #059669;
-  --color-bg-dark: #121212;
-  --color-bg-surface: #1e1e1e;
-  --color-bg-message: #2d2d2d;
-  --color-text-main: #f3f4f6;
-  --color-text-muted: #9ca3af;
-  --color-border: #374151;
+  --color-teal: #0d9488;
+  --color-amber: #f59e0b;
+  --color-bg-dark: #0a0a0a;
+  --color-bg-surface: #171717;
+  --color-bg-message-bot: #1e1e1e;
+  --color-bg-message-user: #fff7ed; /* Light amber for student */
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-border: #262626;
 }
 
 @layer base {
   body {
     @apply bg-bg-dark text-text-main antialiased m-0 p-0;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     color-scheme: dark;
   }
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight text-white;
+  }
+  h1 { @apply text-4xl sm:text-5xl; }
+  h2 { @apply text-2xl sm:text-3xl; }
 }
 
-/* Custom scrollbar for webkit */
+/* ─── Premium Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full;
+  background: #262626;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: #404040;
 }
 
-/* ─── Crisis Background Animations ─────────────────────────────────── */
-@keyframes crisis-bg-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* ─── Layout Elements ────────────────────────────────────────────── */
+.wordmark {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.04em;
+  font-weight: 800;
 }
 
-@keyframes crisis-banner-slide-down {
-  from { 
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
+.notion-callout {
+  position: relative;
+  padding: 1rem 1.25rem 1rem 1.5rem;
+  border-left: 3px solid #10b981;
 }
 
-@keyframes crisis-btn-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.18); }
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse-scale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
 
-@keyframes message-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.krysed-mascot {
+  animation: float 4s ease-in-out infinite;
 }
 
-.crisis-bg-layer {
-  animation: crisis-bg-fade-in 0.8s ease-in-out forwards;
+.pulse-animation {
+  animation: pulse-scale 3s ease-in-out infinite;
 }
 
-.crisis-banner {
-  animation: crisis-banner-slide-down 0.35s ease-out forwards;
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
-.crisis-btn-active {
-  animation: crisis-btn-pop 0.35s ease-out;
+/* ─── Typography & Arabic ───────────────────────────────────────── */
+.arabic-text {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  direction: rtl;
+  text-align: right;
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+/* ─── Crisis Specific Tints ──────────────────────────────────────── */
+.crisis-tint-home { background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent); }
+.crisis-tint-disaster { background: radial-gradient(circle at top right, rgba(13, 148, 136, 0.05), transparent); }
+.crisis-tint-health { background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.05), transparent); }
+.crisis-tint-nopower { background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.05), transparent); }
+
+/* ─── High Contrast (Battery Save) ────────────────────────────────── */
+.high-contrast-theme {
+  background-color: #000000 !important;
+}
+
+.high-contrast-theme .krysed-mascot {
+  animation: none !important;
+}
+
+@keyframes message-appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .message-animate {
-  animation: message-fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: message-appear 0.4s ease-out forwards;
 }
 
-/* Custom Chat Bubble Shapes */
-.bubble-bot {
-  border-bottom-left-radius: 4px !important;
-}
-
+/* Custom Chat Bubble Styles for the Redesign */
 .bubble-user {
-  border-bottom-right-radius: 4px !important;
+  @apply rounded-2xl rounded-tr-none px-4 py-3 text-amber-950 font-medium;
+  background-color: #fff7ed;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
 }
 
-/* ─── High Contrast Theme (No Power) ───────────────────────────────── */
-.high-contrast-theme {
-  background-color: #000000 !important;
-  color: #ffff00 !important;
-}
-
-.high-contrast-theme header {
-  background: #000000 !important;
-  border-bottom: 2px solid #ffff00 !important;
-}
-
-.high-contrast-theme .text-text-main,
-.high-contrast-theme .text-text-muted,
-.high-contrast-theme h1,
-.high-contrast-theme p {
-  color: #ffff00 !important;
-}
-
-.high-contrast-theme .bg-bg-message {
-  background-color: #000000 !important;
-  border: 2px solid #ffff00 !important;
-}
-
-.high-contrast-theme .bg-primary {
-  background-color: #ffff00 !important;
-  color: #000000 !important;
-}
-
-.high-contrast-theme .crisis-banner {
-  background: #ffff00 !important;
-  color: #000000 !important;
-  border-bottom: 2px solid #000000 !important;
-}
-
-.high-contrast-theme .crisis-banner button {
-  color: #000000 !important;
-  font-weight: bold;
-}
-
-.high-contrast-theme footer {
-  background: #000000 !important;
-  border-top: 2px solid #ffff00 !important;
-}
-
-.high-contrast-theme form {
-  background: #000000 !important;
-  border: 2px solid #ffff00 !important;
-}
-
-.high-contrast-theme textarea {
-  color: #ffff00 !important;
-}
-
-.high-contrast-theme textarea::placeholder {
-  color: rgba(255, 255, 0, 0.5) !important;
-}
-
-.high-contrast-theme .crisis-bg-layer {
-  display: none !important;
-}
-
-/* Glass-morphism effect for premium feel */
-.glass-effect {
-  @apply backdrop-blur-md border border-white/10 shadow-xl;
-  background-color: rgba(45, 45, 45, 0.7) !important;
-}
-
-/* Specific typography for Moroccan Darija (Arabic script) */
-.font-darija {
-  font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.8;
-  letter-spacing: 0.02em;
-}
-
-.status-badge-emergency-cache {
-  @apply flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
-}
-
-/* ───────────────────────────────────────────────────────────────────────────── */
-
-/* Disable all animations in High Contrast / No Power mode to save battery */
-.high-contrast-theme *,
-.high-contrast-theme *::before,
-.high-contrast-theme *::after {
-  animation: none !important;
-  transition: none !important;
+.bubble-bot {
+  @apply rounded-2xl rounded-tl-none px-4 py-3 bg-bg-message-bot border border-border;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
